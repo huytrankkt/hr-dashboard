@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HR Task Dashboard — SOL E&C</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-primary: #06090f;
+  --bg-secondary: #0c1220;
+  --bg-card: #111a2e;
+  --bg-card-hover: #162038;
+  --bg-input: #0a1020;
+  --bg-glass: rgba(17,26,46,0.85);
+  --border: #1a2744;
+  --text-primary: #e2e8f4;
+  --text-secondary: #7b8faa;
+  --text-muted: #3e526e;
+  --accent-blue: #3b82f6;
+  --accent-blue-dim: rgba(59,130,246,0.13);
+  --accent-green: #10b981;
+  --accent-green-dim: rgba(16,185,129,0.10);
+  --accent-amber: #f59e0b;
+  --accent-amber-dim: rgba(245,158,11,0.10);
+  --accent-red: #ef4444;
+  --accent-red-dim: rgba(239,68,68,0.10);
+  --accent-purple: #a855f7;
+  --accent-purple-dim: rgba(168,85,247,0.10);
+  --accent-cyan: #06b6d4;
+  --accent-cyan-dim: rgba(6,182,212,0.10);
+  --accent-pink: #ec4899;
+  --accent-pink-dim: rgba(236,72,153,0.10);
+  --radius-sm: 6px; --radius-md: 10px; --radius-lg: 14px;
+  --shadow-glow: 0 0 30px rgba(59,130,246,0.08);
+  --font-display: 'Outfit', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:14px;scroll-behavior:smooth}
+body{font-family:var(--font-display);background:var(--bg-primary);color:var(--text-primary);min-height:100vh;overflow-x:hidden;
+  background-image:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(59,130,246,0.06),transparent),linear-gradient(rgba(26,39,68,0.3) 1px,transparent 1px),linear-gradient(90deg,rgba(26,39,68,0.3) 1px,transparent 1px);
+  background-size:100% 100%,60px 60px,60px 60px}
+::selection{background:var(--accent-blue);color:#fff}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--text-muted);border-radius:3px}
+
+.app{max-width:1480px;margin:0 auto;padding:20px 28px 50px}
+
+/* HEADER */
+.header{display:flex;align-items:center;justify-content:space-between;padding:18px 0 22px;margin-bottom:22px;flex-wrap:wrap;gap:14px}
+.header-left{display:flex;align-items:center;gap:16px}
+.logo-icon{width:48px;height:48px;border-radius:var(--radius-md);background:linear-gradient(135deg,#3b82f6 0%,#8b5cf6 50%,#ec4899 100%);display:grid;place-items:center;font-size:22px;flex-shrink:0;box-shadow:0 0 20px rgba(139,92,246,0.3)}
+.header h1{font-size:1.6rem;font-weight:800;letter-spacing:-0.03em;background:linear-gradient(135deg,var(--text-primary) 60%,var(--accent-blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.header-sub{font-size:0.78rem;color:var(--text-muted);margin-top:2px;font-weight:400;letter-spacing:0.02em}
+.header-right{display:flex;align-items:center;gap:12px}
+.sync-badge{font-family:var(--font-mono);font-size:0.7rem;color:var(--accent-green);background:var(--accent-green-dim);padding:6px 14px;border-radius:20px;display:flex;align-items:center;gap:7px;border:1px solid rgba(16,185,129,0.15);white-space:nowrap}
+.sync-dot{width:6px;height:6px;border-radius:50%;background:var(--accent-green);animation:pulse 2.5s infinite ease-in-out}
+@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(16,185,129,0.4)}50%{opacity:0.4;box-shadow:0 0 0 6px rgba(16,185,129,0)}}
+.mode-badge{font-family:var(--font-mono);font-size:0.68rem;padding:6px 12px;border-radius:20px;border:1px solid}
+.mode-live{color:var(--accent-green);background:var(--accent-green-dim);border-color:rgba(16,185,129,0.15)}
+.mode-mock{color:var(--accent-amber);background:var(--accent-amber-dim);border-color:rgba(245,158,11,0.15)}
+.mode-error{color:var(--accent-red);background:var(--accent-red-dim);border-color:rgba(239,68,68,0.15)}
+
+/* KPI */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(195px,1fr));gap:12px;margin-bottom:22px}
+.kpi-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px 20px;position:relative;overflow:hidden;transition:transform 0.2s ease,border-color 0.25s,box-shadow 0.25s}
+.kpi-card:hover{transform:translateY(-3px);border-color:rgba(255,255,255,0.08);box-shadow:var(--shadow-glow)}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.kpi-card.total::before{background:linear-gradient(90deg,var(--accent-blue),var(--accent-cyan))}
+.kpi-card.progress::before{background:linear-gradient(90deg,var(--accent-amber),#fbbf24)}
+.kpi-card.done::before{background:linear-gradient(90deg,var(--accent-green),#34d399)}
+.kpi-card.overdue::before{background:linear-gradient(90deg,var(--accent-red),#f87171)}
+.kpi-card.rate::before{background:linear-gradient(90deg,var(--accent-purple),var(--accent-pink))}
+.kpi-icon{font-size:1.3rem;margin-bottom:10px;display:block}
+.kpi-value{font-size:2rem;font-weight:800;letter-spacing:-0.04em;line-height:1}
+.kpi-card.total .kpi-value{color:var(--accent-blue)}
+.kpi-card.progress .kpi-value{color:var(--accent-amber)}
+.kpi-card.done .kpi-value{color:var(--accent-green)}
+.kpi-card.overdue .kpi-value{color:var(--accent-red)}
+.kpi-card.rate .kpi-value{color:var(--accent-purple)}
+.kpi-label{font-size:0.75rem;color:var(--text-secondary);margin-top:6px;font-weight:500}
+.kpi-sub{font-size:0.68rem;color:var(--text-muted);margin-top:3px;font-family:var(--font-mono)}
+
+/* FILTERS */
+.filters-bar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px;align-items:center;background:var(--bg-glass);padding:12px 16px;border-radius:var(--radius-lg);border:1px solid var(--border);backdrop-filter:blur(12px)}
+.filter-group{position:relative}
+.filter-group select,.filter-group input[type="text"]{font-family:var(--font-display);font-size:0.8rem;background:var(--bg-input);color:var(--text-primary);border:1px solid var(--border);border-radius:var(--radius-sm);padding:7px 30px 7px 12px;appearance:none;cursor:pointer;transition:border-color 0.15s,box-shadow 0.15s;min-width:155px}
+.filter-group select{padding-right:28px}
+.filter-group::after{content:'▾';position:absolute;right:10px;top:50%;transform:translateY(-50%);color:var(--text-muted);pointer-events:none;font-size:0.65rem}
+.filter-group:has(input)::after{display:none}
+.filter-group select:focus,.filter-group input:focus{outline:none;border-color:var(--accent-blue);box-shadow:0 0 0 3px var(--accent-blue-dim)}
+.filter-group select option{background:var(--bg-secondary)}
+.btn-reset{font-family:var(--font-display);font-size:0.75rem;background:transparent;color:var(--text-muted);border:1px solid var(--border);border-radius:var(--radius-sm);padding:7px 14px;cursor:pointer;transition:all 0.15s;margin-left:auto}
+.btn-reset:hover{border-color:var(--accent-red);color:var(--accent-red)}
+
+/* CHARTS */
+.charts-grid{display:grid;grid-template-columns:1fr 1.3fr;gap:14px;margin-bottom:22px}
+.chart-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px}
+.chart-title{font-size:0.72rem;font-weight:600;margin-bottom:18px;color:var(--text-secondary);display:flex;align-items:center;gap:8px;text-transform:uppercase;letter-spacing:0.05em}
+.chart-title .ct-icon{width:22px;height:22px;border-radius:5px;display:grid;place-items:center;font-size:0.7rem}
+.donut-container{display:flex;align-items:center;gap:24px;justify-content:center}
+.donut-svg{width:160px;height:160px;flex-shrink:0}
+.donut-legend{display:flex;flex-direction:column;gap:8px}
+.legend-item{display:flex;align-items:center;gap:8px;font-size:0.78rem}
+.legend-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+.legend-val{font-family:var(--font-mono);font-weight:600;margin-left:auto;padding-left:12px}
+.bar-chart{display:flex;flex-direction:column;gap:10px}
+.bar-row{display:flex;align-items:center;gap:10px}
+.bar-label{font-size:0.72rem;color:var(--text-secondary);min-width:80px;text-align:right;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar-track{flex:1;height:22px;background:var(--bg-input);border-radius:3px;display:flex;overflow:hidden;gap:1px}
+.bar-fill{height:100%;transition:width 0.5s cubic-bezier(0.22,1,0.36,1);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:0.65rem;font-weight:600;color:#fff;min-width:18px}
+.bar-fill.red{background:var(--accent-red)}.bar-fill.amber{background:var(--accent-amber)}.bar-fill.green{background:var(--accent-green)}
+.bar-legend{display:flex;gap:14px;margin-top:6px;font-size:0.68rem;color:var(--text-muted)}
+.bar-legend span{display:flex;align-items:center;gap:4px}
+.bar-legend .dot{width:8px;height:8px;border-radius:2px}
+
+/* TABLE */
+.table-section{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
+.table-header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:8px}
+.table-header h3{font-size:0.85rem;font-weight:600;display:flex;align-items:center;gap:8px}
+.task-count{font-family:var(--font-mono);font-size:0.68rem;background:var(--accent-blue-dim);color:var(--accent-blue);padding:2px 9px;border-radius:10px}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:0.8rem}
+thead th{text-align:left;padding:10px 14px;font-weight:600;color:var(--text-muted);font-size:0.68rem;text-transform:uppercase;letter-spacing:0.06em;border-bottom:1px solid var(--border);cursor:pointer;user-select:none;white-space:nowrap;transition:color 0.15s}
+thead th:hover{color:var(--text-secondary)}
+thead th.sorted{color:var(--accent-blue)}
+thead th .sort-arrow{margin-left:3px;font-size:0.6rem}
+tbody tr{border-bottom:1px solid rgba(26,39,68,0.5);transition:background 0.1s}
+tbody tr:hover{background:var(--bg-card-hover)}
+tbody td{padding:10px 14px;vertical-align:middle}
+.td-title{font-weight:500;max-width:300px}
+
+.label-badge{font-size:0.68rem;font-weight:700;padding:2px 8px;border-radius:3px;display:inline-block;margin:1px 2px;white-space:nowrap;letter-spacing:0.02em}
+.label-hoso{background:var(--accent-red-dim);color:var(--accent-red)}
+.label-daotao{background:var(--accent-amber-dim);color:var(--accent-amber)}
+.label-cnb{background:var(--accent-green-dim);color:var(--accent-green)}
+.label-qhld{background:var(--accent-purple-dim);color:var(--accent-purple)}
+.label-hethong{background:var(--accent-cyan-dim);color:var(--accent-cyan)}
+.label-phanmem{background:var(--accent-pink-dim);color:var(--accent-pink)}
+
+.status-badge{font-size:0.7rem;font-weight:600;padding:3px 10px;border-radius:20px;white-space:nowrap;display:inline-flex;align-items:center;gap:5px}
+.status-badge::before{content:'';width:5px;height:5px;border-radius:50%}
+.status-notstarted{background:rgba(62,82,110,0.2);color:var(--text-muted)}.status-notstarted::before{background:var(--text-muted)}
+.status-inprogress{background:var(--accent-blue-dim);color:var(--accent-blue)}.status-inprogress::before{background:var(--accent-blue)}
+.status-completed{background:var(--accent-green-dim);color:var(--accent-green)}.status-completed::before{background:var(--accent-green)}
+
+.priority-badge{font-size:0.7rem;font-weight:600;padding:2px 8px;border-radius:3px}
+.priority-urgent{background:var(--accent-red-dim);color:var(--accent-red)}
+.priority-important{background:var(--accent-amber-dim);color:var(--accent-amber)}
+.priority-medium{background:var(--accent-blue-dim);color:var(--accent-blue)}
+.priority-low{background:rgba(62,82,110,0.15);color:var(--text-muted)}
+
+.due-overdue{color:var(--accent-red);font-weight:600}
+.due-soon{color:var(--accent-amber);font-weight:500}
+.due-ok{color:var(--text-secondary)}
+.due-done{color:var(--accent-green);opacity:0.7}
+
+.pagination{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-top:1px solid var(--border);flex-wrap:wrap;gap:8px}
+.pagination-info{font-size:0.72rem;color:var(--text-muted);font-family:var(--font-mono)}
+.pagination-btns{display:flex;gap:3px}
+.pagination-btns button{font-family:var(--font-mono);font-size:0.72rem;background:var(--bg-input);color:var(--text-muted);border:1px solid var(--border);border-radius:4px;padding:5px 10px;cursor:pointer;transition:all 0.12s}
+.pagination-btns button:hover:not(:disabled){border-color:var(--accent-blue);color:var(--accent-blue)}
+.pagination-btns button.active{background:var(--accent-blue);color:#fff;border-color:var(--accent-blue)}
+.pagination-btns button:disabled{opacity:0.25;cursor:not-allowed}
+
+/* Loading overlay */
+.loading-overlay{position:fixed;inset:0;background:var(--bg-primary);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;transition:opacity 0.4s}
+.loading-overlay.hidden{opacity:0;pointer-events:none}
+.loading-spinner{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--accent-blue);border-radius:50%;animation:spin 0.8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{margin-top:16px;color:var(--text-secondary);font-size:0.85rem}
+
+@media(max-width:960px){.charts-grid{grid-template-columns:1fr}.donut-container{flex-direction:column;gap:16px}}
+@media(max-width:640px){.app{padding:12px 14px 30px}.kpi-grid{grid-template-columns:repeat(2,1fr)}.header h1{font-size:1.15rem}.kpi-value{font-size:1.5rem}.filters-bar{padding:10px 12px}.filter-group select,.filter-group input[type="text"]{min-width:130px;font-size:0.75rem}}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.kpi-card,.chart-card,.table-section,.filters-bar{animation:fadeUp 0.5s ease-out both}
+.filters-bar{animation-delay:0.05s}
+.kpi-card:nth-child(1){animation-delay:0.08s}.kpi-card:nth-child(2){animation-delay:0.12s}.kpi-card:nth-child(3){animation-delay:0.16s}.kpi-card:nth-child(4){animation-delay:0.20s}.kpi-card:nth-child(5){animation-delay:0.24s}
+.chart-card:nth-child(1){animation-delay:0.28s}.chart-card:nth-child(2){animation-delay:0.32s}
+.table-section{animation-delay:0.36s}
+</style>
+</head>
+<body>
+
+<!-- Loading -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-spinner"></div>
+  <div class="loading-text">Đang tải dữ liệu...</div>
+</div>
+
+<div class="app">
+  <header class="header">
+    <div class="header-left">
+      <div class="logo-icon">📋</div>
+      <div>
+        <h1>HR Task Dashboard</h1>
+        <div class="header-sub">NHÂN SỰ - 2026 · SOL E&C · Microsoft Planner</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="mode-badge" id="modeBadge">...</div>
+      <div class="sync-badge"><span class="sync-dot"></span><span id="syncTime">--:--</span></div>
+    </div>
+  </header>
+  <div class="kpi-grid" id="kpiGrid"></div>
+  <div class="filters-bar" id="filtersBar"></div>
+  <div class="charts-grid">
+    <div class="chart-card">
+      <div class="chart-title"><span class="ct-icon" style="background:var(--accent-blue-dim);color:var(--accent-blue)">◉</span> Tiến độ tổng quan</div>
+      <div class="donut-container" id="donutChart"></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title"><span class="ct-icon" style="background:var(--accent-amber-dim);color:var(--accent-amber)">▥</span> Deadline theo nhãn chức năng</div>
+      <div class="bar-chart" id="barChart"></div>
+    </div>
+  </div>
+  <div class="table-section">
+    <div class="table-header"><h3>Danh sách Task <span class="task-count" id="taskCount">0</span></h3></div>
+    <div class="table-wrap"><table><thead id="tableHead"></thead><tbody id="tableBody"></tbody></table></div>
+    <div class="pagination" id="pagination"></div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════════
+   CONFIG
+   ═══════════════════════════════════════════════════════════════════
+   ★ JSON_URL: URL file JSON trên SharePoint (guest link)
+     Power Automate sẽ tạo file này mỗi 30 phút.
+   ★ Nếu JSON_URL rỗng hoặc fetch fail → dùng MOCK DATA
+   ═══════════════════════════════════════════════════════════════════ */
+const CONFIG = {
+  // ★★★ PASTE GUEST LINK CỦA FILE JSON TẠI ĐÂY ★★★
+  JSON_URL: 'https://smartvietnam.sharepoint.com/sites/PHNGNHNS2/_layouts/15/download.aspx?share=IQBWw5WFe7RqT41BZ3GaRKCSAWhfofD3im5Jjdi2aEp9DS0',
+
+  ROWS_PER_PAGE: 15,
+  LABELS: {
+    'HỒ SƠ':    { css: 'label-hoso',    color: '#ef4444' },
+    'ĐÀO TẠO':  { css: 'label-daotao',  color: '#f59e0b' },
+    'CnB':       { css: 'label-cnb',     color: '#10b981' },
+    'QHLĐ':      { css: 'label-qhld',    color: '#a855f7' },
+    'HỆ THỐNG':  { css: 'label-hethong', color: '#06b6d4' },
+    'PHẦN MỀM':  { css: 'label-phanmem', color: '#ec4899' },
+  }
+};
+
+/* ═══════════════════════════════════════════════
+   MOCK DATA — dữ liệu thật từ Planner (fallback)
+   ═══════════════════════════════════════════════ */
+const CATEGORY_MAP = {
+  category1:'ĐÀO TẠO', category2:'HỆ THỐNG', category4:'HỒ SƠ',
+  category5:'HỒ SƠ', category6:'CnB', category7:'PHẦN MỀM', category17:'QHLĐ'
+};
+const USER_MAP = {
+  '76396899-6240-44b4-94fa-dfb4eb209ade':'Pham Thi Nhu Ngoc',
+  'bed0ae3c-a746-4cfa-9efd-a03bddbece16':'Vu Hoang Anh',
+  '7e1f1b8d-73a0-4daf-8ec1-a9b70d425eb5':'Nguyen Tran Phuong Thuy',
+  '9d71a689-dda0-441c-8c5e-db763cda4b6d':'Cao Thi Minh Tri',
+  '0173c2c2-b1bd-4e27-b4dc-4d86d845dcb8':'Vo Hoan Vu',
+  'ed216ee0-8cee-4c03-85cc-a6b2bc9e19ce':'Tran Huu Huy',
+  '44489cd9-f42b-4c92-8cea-4c396983f6ce':'Luong Thi My Hanh',
+};
+
+function generateMockData() {
+  const raw = [
+    {id:"01",title:"Quy chế Đào tạo",pct:50,pri:5,created:"2026-03-13",due:"2026-03-20",cats:{},users:["bed0ae3c-a746-4cfa-9efd-a03bddbece16"],cl:2,clA:2},
+    {id:"02",title:"Đào tạo T3 - T4/2026",pct:50,pri:3,created:"2026-03-13",due:"2026-03-18",cats:{category1:true},users:["0173c2c2-b1bd-4e27-b4dc-4d86d845dcb8","bed0ae3c-a746-4cfa-9efd-a03bddbece16"],cl:3,clA:3},
+    {id:"03",title:"Quan hệ lao động",pct:50,pri:5,created:"2026-03-09",due:"2026-03-28",cats:{},users:["0173c2c2-b1bd-4e27-b4dc-4d86d845dcb8"],cl:2,clA:2},
+    {id:"04",title:"CnB",pct:50,pri:5,created:"2026-03-09",due:"2026-03-14",cats:{},users:["7e1f1b8d-73a0-4daf-8ec1-a9b70d425eb5"],cl:0,clA:0},
+    {id:"05",title:"Phần mềm NS",pct:50,pri:5,created:"2026-03-09",due:"2026-03-17",cats:{category7:true},users:["ed216ee0-8cee-4c03-85cc-a6b2bc9e19ce","0173c2c2-b1bd-4e27-b4dc-4d86d845dcb8"],cl:5,clA:5},
+    {id:"06",title:"Định biên - Điều động",pct:50,pri:5,created:"2026-03-09",due:null,cats:{},users:["0173c2c2-b1bd-4e27-b4dc-4d86d845dcb8"],cl:1,clA:1},
+    {id:"07",title:"Văn bản - Hệ thống",pct:50,pri:5,created:"2026-03-09",due:"2026-03-31",cats:{category6:true},users:["76396899-6240-44b4-94fa-dfb4eb209ade"],cl:1,clA:1},
+    {id:"08",title:"Đào tạo chuyên môn XD/ME - Elearning",pct:50,pri:5,created:"2026-03-09",due:"2026-03-27",cats:{category1:true},users:["bed0ae3c-a746-4cfa-9efd-a03bddbece16"],cl:0,clA:0},
+    {id:"09",title:"QUAN HỆ LAO ĐỘNG",pct:0,pri:5,created:"2026-03-05",due:"2026-03-20",cats:{category17:true},users:["9d71a689-dda0-441c-8c5e-db763cda4b6d"],cl:1,clA:1},
+    {id:"10",title:"CnB",pct:50,pri:5,created:"2026-03-05",due:null,cats:{category6:true},users:["7e1f1b8d-73a0-4daf-8ec1-a9b70d425eb5"],cl:6,clA:4},
+    {id:"11",title:"Đào tạo hội nhập",pct:50,pri:5,created:"2026-03-04",due:"2026-03-28",cats:{category1:true},users:["bed0ae3c-a746-4cfa-9efd-a03bddbece16"],cl:0,clA:0},
+    {id:"12",title:"Đào tạo ngành dọc - ELearning",pct:50,pri:5,created:"2026-03-04",due:null,cats:{category1:true},users:["bed0ae3c-a746-4cfa-9efd-a03bddbece16"],cl:1,clA:1},
+    {id:"13",title:"PCCV PHÒNG",pct:50,pri:5,created:"2026-03-04",due:"2026-03-31",cats:{category2:true},users:["9d71a689-dda0-441c-8c5e-db763cda4b6d","76396899-6240-44b4-94fa-dfb4eb209ade"],cl:2,clA:1},
+    {id:"14",title:"HỒ SƠ CÔNG TRƯỜNG",pct:50,pri:3,created:"2026-03-04",due:null,cats:{category5:true},users:["44489cd9-f42b-4c92-8cea-4c396983f6ce"],cl:8,clA:5},
+    {id:"15",title:"TUYỂN DỤNG",pct:50,pri:5,created:"2026-03-04",due:"2026-03-31",cats:{category4:true},users:["76396899-6240-44b4-94fa-dfb4eb209ade"],cl:9,clA:6},
+    {id:"16",title:"Review quy định Teambuilding",pct:100,pri:5,created:"2026-03-09",due:"2026-03-12",completed:"2026-03-14",cats:{},users:["9d71a689-dda0-441c-8c5e-db763cda4b6d"],cl:0,clA:0},
+  ];
+  return raw.map(r => {
+    const labels = Object.keys(r.cats).filter(k=>r.cats[k]).map(k=>CATEGORY_MAP[k]||k).filter((v,i,a)=>a.indexOf(v)===i).join('; ');
+    const pri = r.pri===0?'Urgent':r.pri===1?'Important':r.pri===3?'Medium':'Low';
+    const st = r.pct>=100?'Completed':r.pct>=50?'In Progress':'Not Started';
+    return {Title:r.title,PlanName:'NHÂN SỰ - 2026',BucketName:'Tuần 10/2026 - (09/03 - 15/03)',
+      AssignedTo:r.users.map(u=>USER_MAP[u]||u).join(', '),Status:st,Priority:pri,
+      DueDate:r.due,PercentComplete:r.pct,CreatedDate:r.created,CompletedDate:r.completed||null,
+      Labels:labels,ChecklistTotal:r.cl,ChecklistDone:r.cl-r.clA};
+  });
+}
+
+/* ═══════════════════════════════════════════════
+   FETCH JSON — from SharePoint guest link
+   ═══════════════════════════════════════════════ */
+async function fetchJSONData() {
+  if (!CONFIG.JSON_URL) throw new Error('JSON_URL not configured');
+  const resp = await fetch(CONFIG.JSON_URL);
+  if (!resp.ok) throw new Error(`Fetch failed: ${resp.status}`);
+  const data = await resp.json();
+  // Power Automate output format: data trực tiếp là array hoặc nằm trong .tasks
+  return Array.isArray(data) ? data : (data.tasks || data.value || []);
+}
+
+/* ═══════════════════════════════════════════════
+   STATE
+   ═══════════════════════════════════════════════ */
+let ALL_TASKS=[], filteredTasks=[], currentPage=1, sortColumn='DueDate', sortDir='asc';
+const filters={label:'',member:'',status:'',deadline:'',bucket:'',search:''};
+
+/* ═══════════════════════════════════════════════
+   INIT
+   ═══════════════════════════════════════════════ */
+(async function init(){
+  const badge = document.getElementById('modeBadge');
+  const overlay = document.getElementById('loadingOverlay');
+  try {
+    ALL_TASKS = await fetchJSONData();
+    badge.textContent = '◈ LIVE';
+    badge.className = 'mode-badge mode-live';
+  } catch(e) {
+    console.warn('JSON fetch failed, using mock:', e.message);
+    ALL_TASKS = generateMockData();
+    if (!CONFIG.JSON_URL) {
+      badge.textContent = '◈ MOCK';
+      badge.className = 'mode-badge mode-mock';
+    } else {
+      badge.textContent = '⚠ OFFLINE';
+      badge.className = 'mode-badge mode-error';
+    }
+  }
+  document.getElementById('syncTime').textContent = new Date().toLocaleString('vi-VN',{hour:'2-digit',minute:'2-digit',day:'2-digit',month:'2-digit'});
+  buildFilters();
+  applyFilters();
+  setTimeout(()=> overlay.classList.add('hidden'), 300);
+})();
+
+/* ═══════════════════════════════════════════════
+   FILTERS
+   ═══════════════════════════════════════════════ */
+function buildFilters(){
+  const allLabels=Object.keys(CONFIG.LABELS);
+  const members=[...new Set(ALL_TASKS.flatMap(t=>(t.AssignedTo||'').split(',').map(s=>s.trim())).filter(Boolean))].sort();
+  const buckets=[...new Set(ALL_TASKS.map(t=>t.BucketName).filter(Boolean))].sort();
+  document.getElementById('filtersBar').innerHTML=`
+    <div class="filter-group"><select onchange="filters.label=this.value;applyFilters()"><option value="">🏷 Tất cả nhãn</option>${allLabels.map(l=>`<option value="${l}">${l}</option>`).join('')}</select></div>
+    <div class="filter-group"><select onchange="filters.bucket=this.value;applyFilters()"><option value="">📅 Tất cả tuần</option>${buckets.map(b=>`<option value="${b}">${b}</option>`).join('')}</select></div>
+    <div class="filter-group"><select onchange="filters.member=this.value;applyFilters()"><option value="">👤 Tất cả thành viên</option>${members.map(m=>`<option value="${m}">${m}</option>`).join('')}</select></div>
+    <div class="filter-group"><select onchange="filters.status=this.value;applyFilters()"><option value="">◉ Tất cả trạng thái</option><option value="Not Started">Chưa bắt đầu</option><option value="In Progress">Đang thực hiện</option><option value="Completed">Hoàn thành</option></select></div>
+    <div class="filter-group"><select onchange="filters.deadline=this.value;applyFilters()"><option value="">⏰ Deadline</option><option value="overdue">Quá hạn</option><option value="due7">Trong 7 ngày</option><option value="due30">Trong 30 ngày</option></select></div>
+    <div class="filter-group"><input type="text" placeholder="🔍 Tìm task..." oninput="filters.search=this.value.toLowerCase();applyFilters()"></div>
+    <button class="btn-reset" onclick="resetFilters()">✕ Reset</button>`;
+}
+function resetFilters(){Object.keys(filters).forEach(k=>filters[k]='');document.querySelectorAll('.filters-bar select').forEach(s=>s.selectedIndex=0);const inp=document.querySelector('.filters-bar input');if(inp)inp.value='';applyFilters()}
+function deadlineCat(due,status){
+  if(status==='Completed')return'done';if(!due)return'none';
+  const today=new Date();today.setHours(0,0,0,0);const d=Math.ceil((new Date(due)-today)/86400000);
+  if(d<0)return'overdue';if(d<=7)return'due7';if(d<=30)return'due30';return'future';
+}
+function applyFilters(){
+  filteredTasks=ALL_TASKS.filter(t=>{
+    if(filters.label&&!(t.Labels||'').includes(filters.label))return false;
+    if(filters.bucket&&t.BucketName!==filters.bucket)return false;
+    if(filters.member&&!(t.AssignedTo||'').includes(filters.member))return false;
+    if(filters.status&&t.Status!==filters.status)return false;
+    if(filters.deadline){const cat=deadlineCat(t.DueDate,t.Status);if(filters.deadline!==cat)return false}
+    if(filters.search){const q=filters.search;if(!(t.Title||'').toLowerCase().includes(q)&&!(t.AssignedTo||'').toLowerCase().includes(q)&&!(t.Labels||'').toLowerCase().includes(q))return false}
+    return true;
+  });
+  filteredTasks.sort((a,b)=>{
+    let va=a[sortColumn]??'',vb=b[sortColumn]??'';
+    if(sortColumn==='DueDate'||sortColumn==='CreatedDate'){va=new Date(va||'2099-12-31');vb=new Date(vb||'2099-12-31')}
+    if(sortColumn==='Priority'){const o={Urgent:0,Important:1,Medium:2,Low:3};va=o[va]??9;vb=o[vb]??9}
+    if(va<vb)return sortDir==='asc'?-1:1;if(va>vb)return sortDir==='asc'?1:-1;return 0;
+  });
+  currentPage=1;renderAll();
+}
+
+/* RENDER KPI */
+function renderKPIs(){
+  const t=filteredTasks.length,ip=filteredTasks.filter(x=>x.Status==='In Progress').length,done=filteredTasks.filter(x=>x.Status==='Completed').length;
+  const today=new Date();today.setHours(0,0,0,0);
+  const over=filteredTasks.filter(x=>x.Status!=='Completed'&&x.DueDate&&new Date(x.DueDate)<today).length;
+  const rate=t?Math.round(done/t*100):0;
+  document.getElementById('kpiGrid').innerHTML=`
+    <div class="kpi-card total"><span class="kpi-icon">📊</span><div class="kpi-value">${t}</div><div class="kpi-label">Tổng Tasks</div><div class="kpi-sub">filtered</div></div>
+    <div class="kpi-card progress"><span class="kpi-icon">⚡</span><div class="kpi-value">${ip}</div><div class="kpi-label">Đang thực hiện</div><div class="kpi-sub">${t?Math.round(ip/t*100):0}%</div></div>
+    <div class="kpi-card done"><span class="kpi-icon">✓</span><div class="kpi-value">${done}</div><div class="kpi-label">Hoàn thành</div><div class="kpi-sub">${rate}%</div></div>
+    <div class="kpi-card overdue"><span class="kpi-icon">⚠</span><div class="kpi-value">${over}</div><div class="kpi-label">Quá hạn</div><div class="kpi-sub">${t?Math.round(over/t*100):0}%</div></div>
+    <div class="kpi-card rate"><span class="kpi-icon">◎</span><div class="kpi-value">${rate}%</div><div class="kpi-label">Tỷ lệ hoàn thành</div><div class="kpi-sub">target: 80%</div></div>`;
+}
+
+/* RENDER DONUT */
+function renderDonut(){
+  const counts={'Chưa bắt đầu':filteredTasks.filter(t=>t.Status==='Not Started').length,'Đang thực hiện':filteredTasks.filter(t=>t.Status==='In Progress').length,'Hoàn thành':filteredTasks.filter(t=>t.Status==='Completed').length};
+  const colors={'Chưa bắt đầu':'#3e526e','Đang thực hiện':'#3b82f6','Hoàn thành':'#10b981'};
+  const total=Object.values(counts).reduce((a,b)=>a+b,0)||1;
+  const r=62,cx=80,cy=80,sw=20,circ=2*Math.PI*r;let off=0,paths='';
+  Object.entries(counts).forEach(([label,val])=>{const dash=(val/total)*circ;paths+=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${colors[label]}" stroke-width="${sw}" stroke-dasharray="${dash} ${circ-dash}" stroke-dashoffset="${-off}" transform="rotate(-90 ${cx} ${cy})" style="transition:stroke-dasharray .5s ease"/>`;off+=dash});
+  const pct=Math.round(counts['Hoàn thành']/total*100);
+  const legend=Object.entries(counts).map(([l,v])=>`<div class="legend-item"><span class="legend-dot" style="background:${colors[l]}"></span><span>${l}</span><span class="legend-val">${v}</span></div>`).join('');
+  document.getElementById('donutChart').innerHTML=`<svg class="donut-svg" viewBox="0 0 160 160">${paths}<text x="${cx}" y="${cy-4}" text-anchor="middle" fill="var(--text-primary)" font-family="var(--font-display)" font-size="22" font-weight="800">${pct}%</text><text x="${cx}" y="${cy+12}" text-anchor="middle" fill="var(--text-muted)" font-family="var(--font-display)" font-size="9">hoàn thành</text></svg><div class="donut-legend">${legend}</div>`;
+}
+
+/* RENDER BAR */
+function renderBarChart(){
+  const today=new Date();today.setHours(0,0,0,0);
+  const data=Object.keys(CONFIG.LABELS).map(label=>{
+    const tasks=filteredTasks.filter(t=>(t.Labels||'').includes(label));
+    const overdue=tasks.filter(t=>t.Status!=='Completed'&&t.DueDate&&new Date(t.DueDate)<today).length;
+    const soon=tasks.filter(t=>{if(t.Status==='Completed'||!t.DueDate)return false;const d=Math.ceil((new Date(t.DueDate)-today)/86400000);return d>=0&&d<=7}).length;
+    const ok=tasks.filter(t=>{if(!t.DueDate)return false;if(t.Status==='Completed')return true;return Math.ceil((new Date(t.DueDate)-today)/86400000)>7}).length;
+    return{label,overdue,soon,ok,total:tasks.length}
+  }).filter(d=>d.total>0);
+  const max=Math.max(...data.map(d=>d.total),1);
+  document.getElementById('barChart').innerHTML=data.map(d=>`<div class="bar-row"><span class="bar-label">${d.label}</span><div class="bar-track">${d.overdue?`<div class="bar-fill red" style="width:${d.overdue/max*100}%">${d.overdue}</div>`:''}${d.soon?`<div class="bar-fill amber" style="width:${d.soon/max*100}%">${d.soon}</div>`:''}${d.ok?`<div class="bar-fill green" style="width:${d.ok/max*100}%">${d.ok}</div>`:''}</div></div>`).join('')+`<div class="bar-legend"><span><span class="dot" style="background:var(--accent-red)"></span> Quá hạn</span><span><span class="dot" style="background:var(--accent-amber)"></span> ≤7 ngày</span><span><span class="dot" style="background:var(--accent-green)"></span> Ổn / Xong</span></div>`;
+}
+
+/* RENDER TABLE */
+const COLS=[{key:'Title',label:'Task'},{key:'Labels',label:'Nhãn'},{key:'AssignedTo',label:'Phụ trách'},{key:'Status',label:'Trạng thái'},{key:'Priority',label:'Ưu tiên'},{key:'DueDate',label:'Deadline'},{key:'Checklist',label:'Checklist'}];
+function renderLabelBadges(s){if(!s)return'<span style="color:var(--text-muted);font-size:0.7rem">—</span>';return s.split(';').map(l=>l.trim()).filter(Boolean).map(l=>{const c=CONFIG.LABELS[l];return c?`<span class="label-badge ${c.css}">${l}</span>`:`<span class="label-badge" style="background:var(--bg-input);color:var(--text-muted)">${l}</span>`}).join('')}
+function renderTable(){
+  document.getElementById('tableHead').innerHTML=`<tr>${COLS.map(c=>{const sorted=sortColumn===c.key;const arrow=sorted?(sortDir==='asc'?'↑':'↓'):'';return`<th class="${sorted?'sorted':''}" onclick="handleSort('${c.key}')">${c.label}<span class="sort-arrow">${arrow}</span></th>`}).join('')}</tr>`;
+  const start=(currentPage-1)*CONFIG.ROWS_PER_PAGE;const page=filteredTasks.slice(start,start+CONFIG.ROWS_PER_PAGE);const today=new Date();today.setHours(0,0,0,0);
+  document.getElementById('tableBody').innerHTML=page.map(t=>{
+    const stCls=t.Status==='Completed'?'status-completed':t.Status==='In Progress'?'status-inprogress':'status-notstarted';
+    const stLbl=t.Status==='Completed'?'Hoàn thành':t.Status==='In Progress'?'Đang thực hiện':'Chưa bắt đầu';
+    const prCls=`priority-${(t.Priority||'medium').toLowerCase()}`;
+    const prLbl={Urgent:'Khẩn cấp',Important:'Quan trọng',Medium:'Trung bình',Low:'Thấp'}[t.Priority]||t.Priority;
+    const cat=deadlineCat(t.DueDate,t.Status);
+    const dueCls=cat==='overdue'?'due-overdue':cat==='due7'?'due-soon':cat==='done'?'due-done':'due-ok';
+    const dueFmt=t.DueDate?new Date(t.DueDate).toLocaleDateString('vi-VN',{day:'2-digit',month:'2-digit',year:'numeric'}):'—';
+    const days=t.DueDate?Math.ceil((new Date(t.DueDate)-today)/86400000):null;
+    const dueSub=t.Status==='Completed'?'✓':days===null?'':days<0?`⚠ ${-days}d trễ`:days<=7?`⏰ ${days}d`:`${days}d`;
+    const clTotal=t.ChecklistTotal||0,clDone=t.ChecklistDone||0;
+    const clHtml=clTotal>0?`<span style="font-family:var(--font-mono);font-size:0.72rem;color:${clDone===clTotal?'var(--accent-green)':'var(--text-secondary)'}">${clDone}/${clTotal}</span>`:'<span style="color:var(--text-muted);font-size:0.7rem">—</span>';
+    return`<tr><td class="td-title">${t.Title}</td><td>${renderLabelBadges(t.Labels)}</td><td>${t.AssignedTo||''}</td><td><span class="status-badge ${stCls}">${stLbl}</span></td><td><span class="priority-badge ${prCls}">${prLbl}</span></td><td class="${dueCls}"><div>${dueFmt}</div><div style="font-size:0.66rem;font-family:var(--font-mono)">${dueSub}</div></td><td>${clHtml}</td></tr>`
+  }).join('');
+  document.getElementById('taskCount').textContent=filteredTasks.length;renderPagination();
+}
+function handleSort(col){if(sortColumn===col)sortDir=sortDir==='asc'?'desc':'asc';else{sortColumn=col;sortDir='asc'}applyFilters()}
+function renderPagination(){
+  const tp=Math.ceil(filteredTasks.length/CONFIG.ROWS_PER_PAGE)||1;const s=(currentPage-1)*CONFIG.ROWS_PER_PAGE+1;const e=Math.min(currentPage*CONFIG.ROWS_PER_PAGE,filteredTasks.length);
+  let btns=`<button ${currentPage<=1?'disabled':''} onclick="goPage(${currentPage-1})">‹</button>`;
+  let sp=Math.max(1,currentPage-2),ep=Math.min(tp,sp+4);if(ep-sp<4)sp=Math.max(1,ep-4);
+  for(let p=sp;p<=ep;p++)btns+=`<button class="${p===currentPage?'active':''}" onclick="goPage(${p})">${p}</button>`;
+  btns+=`<button ${currentPage>=tp?'disabled':''} onclick="goPage(${currentPage+1})">›</button>`;
+  document.getElementById('pagination').innerHTML=`<span class="pagination-info">${s}–${e} / ${filteredTasks.length}</span><div class="pagination-btns">${btns}</div>`;
+}
+function goPage(p){const tp=Math.ceil(filteredTasks.length/CONFIG.ROWS_PER_PAGE);currentPage=Math.max(1,Math.min(p,tp));renderTable()}
+function renderAll(){renderKPIs();renderDonut();renderBarChart();renderTable()}
+</script>
+</body>
+</html>
